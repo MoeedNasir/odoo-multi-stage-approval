@@ -1,0 +1,23 @@
+{
+    'name': 'Multi-Stage Approval System',
+    'version': '18.0.1.0.0',
+    'category': 'Purchases/Sales',
+    'author': 'Moeed Nasir',
+    'website': 'https://moeed-portfolio.netlify.app/',
+    'summary': 'Multi-level approval workflow for Purchase and Sales',
+    'depends': ['purchase', 'sale', 'mail', 'stock'],
+    'data': [
+        'security/ir.model.access.csv',
+        'security/approval_rules.xml',
+        'data/approval_stages.xml',
+        'views/approval_flow_views.xml',
+        'views/approval_stage_views.xml',
+        'views/purchase_views.xml',
+        'views/sale_views.xml',
+        'views/res_config_settings_views.xml',
+    ],
+    'demo': [],
+    'installable': True,
+    'application': True,
+    'license': 'LGPL-3',
+}
