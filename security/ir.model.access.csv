@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_approval_flow_user,approval.flow.user,model_approval_flow,base.group_user,1,0,0,0
+access_approval_flow_manager,approval.flow.manager,model_approval_flow,base.group_system,1,1,1,1
+access_approval_stage_user,approval.stage.user,model_approval_stage,base.group_user,1,0,0,0
+access_approval_stage_manager,approval.stage.manager,model_approval_stage,base.group_system,1,1,1,1

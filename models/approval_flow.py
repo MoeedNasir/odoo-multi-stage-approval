@@ -17,6 +17,5 @@ class ApprovalFlow(models.Model):
     company_id = fields.Many2one('res.company', default =lambda self: self.env.company)
 
     _sql_constraints = [
-        ('unique_flow_model', unique(model, company_id),
-         'Only one flow per model per company is allowed!')
+        ('unique_flow_model', 'unique(model, company_id)','Only one flow per model per company is allowed!')
     ]
