@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Approval Stage Tree View -->
+        <record id="view_approval_stage_tree" model="ir.ui.view">
+            <field name="name">approval.stage.tree</field>
+            <field name="model">approval.stage</field>
+            <field name="arch" type="xml">
+                <list string="Approval Stages" default_order="sequence">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="approval_flow_id"/>
+                    <field name="role_id"/>
+                    <field name="minimum_amount"/>
+                    <field name="maximum_amount"/>
+                    <field name="is_final_approval"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Approval Stage Form View -->
+        <record id="view_approval_stage_form" model="ir.ui.view">
+            <field name="name">approval.stage.form</field>
+            <field name="model">approval.stage</field>
+            <field name="arch" type="xml">
+                <form string="Approval Stage">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="sequence"/>
+                                <field name="approval_flow_id" options="{'no_create': True}"/>
+                                <field name="role_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                            </group>
+                            <group>
+                                <field name="minimum_amount"/>
+                                <field name="maximum_amount"/>
+                                <field name="is_final_approval"/>
+                                <field name="auto_approve"/>
+                                <field name="approval_type"/>
+                            </group>
+                        </group>
+                        <group string="Amount Range Help" invisible="minimum_amount == 0 and maximum_amount == 0">
+                            <label for="minimum_amount" string="This stage will be triggered for orders with amounts between"/>
+                            <label for="maximum_amount" string="Minimum and Maximum values. Set Maximum to 0 for unlimited."/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

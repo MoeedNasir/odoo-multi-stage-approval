@@ -1,0 +1,37 @@
+/* Approval specific styling */
+.o_kanban_approve {
+    margin-right: 5px;
+}
+
+.o_kanban_reject {
+    margin-left: 5px;
+}
+
+/* Status colors */
+.o_status_draft {
+    color: #6c757d;
+}
+
+.o_status_waiting {
+    color: #fd7e14;
+}
+
+.o_status_approved {
+    color: #28a745;
+}
+
+.o_status_rejected {
+    color: #dc3545;
+}
+
+/* Approval history styling */
+.o_approval_history_line {
+    border-left: 2px solid #dee2e6;
+    padding-left: 10px;
+    margin-bottom: 10px;
+}
+
+/* Button box styling */
+.oe_button_box .btn {
+    margin: 2px;
+}

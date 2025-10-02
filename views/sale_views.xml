@@ -1,2 +1,106 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<odoo></odoo>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Sales Order Form View Extension -->
+        <record id="view_sale_order_form_inherit_approval" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit.approval</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <!-- Add Approval Button Box -->
+                <xpath expr="//sheet" position="before">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_request_approval" type="object"
+                                string="Request Approval" class="btn-primary"
+                                invisible="approval_status != 'draft' or not requires_approval"/>
+                        <button name="action_approve" type="object"
+                                string="Approve" class="btn-success"
+                                invisible="approval_status != 'waiting' or not requires_approval"/>
+                        <button name="action_reject" type="object"
+                                string="Reject" class="btn-danger"
+                                invisible="approval_status != 'waiting' or not requires_approval"/>
+                        <field name="approval_status" widget="statusbar"
+                               statusbar_visible="draft,waiting,approved,rejected"
+                               invisible="not requires_approval"/>
+                    </div>
+                </xpath>
+
+                <!-- Add Approval Status Section -->
+                <xpath expr="//field[@name='client_order_ref']" position="after">
+                    <group string="Approval Status" invisible="not requires_approval" col="4">
+                        <field name="approval_status" widget="statusbar"
+                               statusbar_visible="draft,waiting,approved,rejected"
+                               options="{'clickable': '0'}" readonly="1"/>
+                        <field name="approval_stage_id" readonly="1"/>
+                        <field name="next_approver_id" readonly="1"/>
+                        <field name="approval_flow_id" readonly="1"/>
+                    </group>
+                </xpath>
+
+                <!-- Add Approval History Tab -->
+                <xpath expr="//notebook" position="inside">
+                    <page string="Approval History" invisible="not requires_approval">
+                        <field name="approval_history_ids">
+                            <list string="Approval History">
+                                <field name="date"/>
+                                <field name="stage_id"/>
+                                <field name="user_id"/>
+                                <field name="action"/>
+                                <field name="note"/>
+                            </list>
+                            <form>
+                                <group>
+                                    <group>
+                                        <field name="date" readonly="1"/>
+                                        <field name="stage_id" readonly="1"/>
+                                        <field name="user_id" readonly="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="action" readonly="1"/>
+                                        <field name="note" readonly="1"/>
+                                    </group>
+                                </group>
+                            </form>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Sales Order Tree View Extension -->
+        <record id="view_sale_order_tree_inherit_approval" model="ir.ui.view">
+            <field name="name">sale.order.tree.inherit.approval</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="approval_status" widget="priority"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- Sales Order Search View Extension -->
+        <record id="view_sale_order_search_inherit_approval" model="ir.ui.view">
+            <field name="name">sale.order.search.inherit.approval</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+
+                <!-- Add approval_status field -->
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="approval_status"/>
+                </xpath>
+
+                <!-- Add filters inside search -->
+                <xpath expr="//search" position="inside">
+                    <filter string="Waiting Approval" name="waiting_approval"
+                            domain="[('approval_status','=','waiting')]"/>
+                    <filter string="Approved" name="approved"
+                            domain="[('approval_status','=','approved')]"/>
+                    <filter string="Rejected" name="rejected"
+                            domain="[('approval_status','=','rejected')]"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

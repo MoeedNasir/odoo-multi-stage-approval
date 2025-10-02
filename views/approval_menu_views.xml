@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Actions -->
+        <record id="action_approval_flow" model="ir.actions.act_window">
+            <field name="name">Approval Flows</field>
+            <field name="res_model">approval.flow</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_approval_flow_tree"/>
+            <field name="search_view_id" ref="view_approval_flow_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first approval flow!
+                </p>
+                <p>
+                    Configure multi-stage approval workflows for Purchase and Sales orders.
+                </p>
+            </field>
+        </record>
+
+        <record id="action_purchase_approval_dashboard" model="ir.actions.act_window">
+            <field name="name">Purchase Approvals Dashboard</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="view_id" ref="view_purchase_approval_kanban"/>
+            <field name="domain">[('approval_status','!=','draft')]</field>
+            <field name="context">{'search_default_waiting_approval': 1}</field>
+        </record>
+
+        <record id="action_sales_approval_dashboard" model="ir.actions.act_window">
+            <field name="name">Sales Approvals Dashboard</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="view_id" ref="view_sales_approval_kanban"/>
+            <field name="domain">[('approval_status','!=','draft')]</field>
+            <field name="context">{'search_default_waiting_approval': 1}</field>
+        </record>
+
+        <!-- Menu Structure -->
+        <menuitem id="menu_approval_root" name="Approvals" sequence="50"/>
+
+        <menuitem id="menu_approval_configuration" name="Configuration"
+                  parent="menu_approval_root" sequence="10"/>
+
+        <menuitem id="menu_approval_flows" name="Approval Flows"
+                  parent="menu_approval_configuration"
+                  action="action_approval_flow" sequence="10"/>
+
+        <menuitem id="menu_approval_dashboards" name="Approval Dashboards"
+                  parent="menu_approval_root" sequence="20"/>
+
+        <menuitem id="menu_purchase_approval_dashboard" name="Purchase Approvals"
+                  parent="menu_approval_dashboards"
+                  action="action_purchase_approval_dashboard" sequence="10"/>
+
+        <menuitem id="menu_sales_approval_dashboard" name="Sales Approvals"
+                  parent="menu_approval_dashboards"
+                  action="action_sales_approval_dashboard" sequence="20"/>
+    </data>
+</odoo>

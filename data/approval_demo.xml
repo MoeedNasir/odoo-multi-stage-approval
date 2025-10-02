@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Demo Approval Groups -->
+        <record id="group_purchase_approver_1" model="res.groups">
+            <field name="name">Purchase Approver Level 1</field>
+            <field name="category_id" ref="module_category_multi_stage_approval"/>
+        </record>
+
+        <record id="group_purchase_approver_2" model="res.groups">
+            <field name="name">Purchase Approver Level 2</field>
+            <field name="category_id" ref="module_category_multi_stage_approval"/>
+        </record>
+
+        <record id="group_sales_approver_1" model="res.groups">
+            <field name="name">Sales Approver Level 1</field>
+            <field name="category_id" ref="module_category_multi_stage_approval"/>
+        </record>
+
+        <!-- Demo Approval Flows -->
+        <record id="demo_purchase_flow" model="approval.flow">
+            <field name="name">Demo Purchase Approval Flow</field>
+            <field name="model">purchase.order</field>
+            <field name="sequence">10</field>
+            <field name="active">True</field>
+        </record>
+
+        <record id="demo_sales_flow" model="approval.flow">
+            <field name="name">Demo Sales Approval Flow</field>
+            <field name="model">sale.order</field>
+            <field name="sequence">20</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- Demo Purchase Approval Stages -->
+        <record id="demo_purchase_stage_1" model="approval.stage">
+            <field name="name">Manager Approval</field>
+            <field name="sequence">10</field>
+            <field name="approval_flow_id" ref="demo_purchase_flow"/>
+            <field name="role_id" ref="group_purchase_approver_1"/>
+            <field name="minimum_amount">0</field>
+            <field name="maximum_amount">1000</field>
+            <field name="approval_type">mandatory</field>
+        </record>
+
+        <record id="demo_purchase_stage_2" model="approval.stage">
+            <field name="name">Director Approval</field>
+            <field name="sequence">20</field>
+            <field name="approval_flow_id" ref="demo_purchase_flow"/>
+            <field name="role_id" ref="group_purchase_approver_2"/>
+            <field name="minimum_amount">1000.01</field>
+            <field name="maximum_amount">5000</field>
+            <field name="is_final_approval">True</field>
+            <field name="approval_type">mandatory</field>
+        </record>
+
+        <!-- Demo Sales Approval Stages -->
+        <record id="demo_sales_stage_1" model="approval.stage">
+            <field name="name">Sales Manager Approval</field>
+            <field name="sequence">10</field>
+            <field name="approval_flow_id" ref="demo_sales_flow"/>
+            <field name="role_id" ref="group_sales_approver_1"/>
+            <field name="minimum_amount">500</field>
+            <field name="maximum_amount">0</field>
+            <field name="approval_type">mandatory</field>
+        </record>
+
+    </data>
+</odoo>
