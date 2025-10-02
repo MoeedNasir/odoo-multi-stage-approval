@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Approval Activity Type -->
+        <record id="mail_activity_approval" model="mail.activity.type">
+            <field name="name">Approval Required</field>
+            <field name="category">upload_file</field>
+            <field name="delay_count">1</field>
+            <field name="delay_unit">days</field>
+            <field name="summary">Approval required</field>
+            <field name="default_user_id" ref="base.user_admin"/>
+        </record>
+
+        <!-- Approval Request Email Template -->
+        <record id="email_template_approval_request" model="mail.template">
+            <field name="name">Approval Request</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="subject">Approval Required for Purchase Order ${object.name}</field>
+            <field name="email_from">${object.company_id.email or ''}</field>
+            <field name="email_to">${','.join([user.email for user in object.approval_stage_id.role_id.users if user.email])}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
+                            <tr>
+                                <td align="center">
+                                    <table width="600" border="0" cellspacing="0" cellpadding="20" style="background-color: white; margin: 20px; border-radius: 8px;">
+                                        <tr>
+                                            <td>
+                                                <h2 style="color: #875A7B; margin-bottom: 20px;">Approval Required</h2>
+
+                                                <p>Hello,</p>
+
+                                                <p>Approval is required for <strong>Purchase Order ${object.name}</strong>.</p>
+
+                                                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td><strong>Vendor:</strong></td>
+                                                            <td>${object.partner_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Amount:</strong></td>
+                                                            <td>${object.amount_total} ${object.currency_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Current Stage:</strong></td>
+                                                            <td>${object.approval_stage_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Requested By:</strong></td>
+                                                            <td>${object.create_uid.name}</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+
+                                                <div style="text-align: center; margin: 25px 0;">
+                                                    <a href="${object.get_approval_url()}"
+                                                       style="background-color: #875A7B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                                                       Review Approval
+                                                    </a>
+                                                </div>
+
+                                                <p style="color: #6c757d; font-size: 12px; margin-top: 20px;">
+                                                    This is an automated message from ${object.company_id.name}.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <!-- Sales Order Approval Request Template -->
+        <record id="email_template_sales_approval_request" model="mail.template">
+            <field name="name">Sales Approval Request</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Approval Required for Sales Order ${object.name}</field>
+            <field name="email_from">${object.company_id.email or ''}</field>
+            <field name="email_to">${','.join([user.email for user in object.approval_stage_id.role_id.users if user.email])}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
+                            <tr>
+                                <td align="center">
+                                    <table width="600" border="0" cellspacing="0" cellpadding="20" style="background-color: white; margin: 20px; border-radius: 8px;">
+                                        <tr>
+                                            <td>
+                                                <h2 style="color: #875A7B; margin-bottom: 20px;">Sales Approval Required</h2>
+
+                                                <p>Hello,</p>
+
+                                                <p>Approval is required for <strong>Sales Order ${object.name}</strong>.</p>
+
+                                                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td><strong>Customer:</strong></td>
+                                                            <td>${object.partner_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Amount:</strong></td>
+                                                            <td>${object.amount_total} ${object.currency_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Current Stage:</strong></td>
+                                                            <td>${object.approval_stage_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Requested By:</strong></td>
+                                                            <td>${object.create_uid.name}</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+
+                                                <div style="text-align: center; margin: 25px 0;">
+                                                    <a href="${object.get_approval_url()}"
+                                                       style="background-color: #875A7B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                                                       Review Approval
+                                                    </a>
+                                                </div>
+
+                                                <p style="color: #6c757d; font-size: 12px; margin-top: 20px;">
+                                                    This is an automated message from ${object.company_id.name}.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <!-- Approval Approved Template -->
+        <record id="email_template_approval_approved" model="mail.template">
+            <field name="name">Approval Approved</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="subject">Purchase Order ${object.name} Approved</field>
+            <field name="email_to">${object.create_uid.email}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
+                            <tr>
+                                <td align="center">
+                                    <table width="600" border="0" cellspacing="0" cellpadding="20" style="background-color: white; margin: 20px; border-radius: 8px;">
+                                        <tr>
+                                            <td style="text-align: center;">
+                                                <div style="color: #28a745; font-size: 48px; margin-bottom: 20px;">✅</div>
+                                                <h2 style="color: #28a745; margin-bottom: 20px;">Approval Complete!</h2>
+
+                                                <p>Your purchase order <strong>${object.name}</strong> has been fully approved.</p>
+
+                                                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td><strong>Vendor:</strong></td>
+                                                            <td>${object.partner_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Amount:</strong></td>
+                                                            <td>${object.amount_total} ${object.currency_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Approved By:</strong></td>
+                                                            <td>${object.approval_history_ids[-1].user_id.name if object.approval_history_ids else 'System'}</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+
+                                                <p style="color: #6c757d; font-size: 12px; margin-top: 20px;">
+                                                    This is an automated message from ${object.company_id.name}.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </field>
+        </record>
+    </data>
+</odoo>

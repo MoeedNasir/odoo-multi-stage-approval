@@ -11,10 +11,11 @@
                     <field name="name"/>
                     <field name="partner_id"/>
                     <field name="amount_total"/>
+                    <field name="currency_id"/>
                     <field name="approval_status"/>
                     <templates>
                         <t t-name="kanban-box">
-                            <div class="oe_kanban_global_click" t-attf-class="oe_kanban_global_click {{ 'oe_kanban_color_' + (record.color.raw_value or '0') }}">
+                            <div class="oe_kanban_global_click">
                                 <div class="o_kanban_record_top">
                                     <div class="o_kanban_record_title">
                                         <field name="name"/>
@@ -25,7 +26,7 @@
                                         <field name="partner_id"/>
                                     </div>
                                     <div>
-                                        Amount: <field name="amount_total" widget="monetary" options="{'display_currency': record.currency_id.raw_value}"/>
+                                        Amount: <field name="amount_total" widget="monetary" options="{'currency_id': 'currency_id'}"/>
                                     </div>
                                     <div t-if="record.approval_status.raw_value == 'waiting'">
                                         <button name="action_approve" type="object"
@@ -57,10 +58,11 @@
                     <field name="name"/>
                     <field name="partner_id"/>
                     <field name="amount_total"/>
+                    <field name="currency_id"/>
                     <field name="approval_status"/>
                     <templates>
                         <t t-name="kanban-box">
-                            <div class="oe_kanban_global_click" t-attf-class="oe_kanban_global_click {{ 'oe_kanban_color_' + (record.color.raw_value or '0') }}">
+                            <div class="oe_kanban_global_click">
                                 <div class="o_kanban_record_top">
                                     <div class="o_kanban_record_title">
                                         <field name="name"/>
@@ -71,7 +73,7 @@
                                         <field name="partner_id"/>
                                     </div>
                                     <div>
-                                        Amount: <field name="amount_total" widget="monetary" options="{'display_currency': record.currency_id.raw_value}"/>
+                                        Amount: <field name="amount_total" widget="monetary" options="{'currency_id': 'currency_id'}"/>
                                     </div>
                                     <div t-if="record.approval_status.raw_value == 'waiting'">
                                         <button name="action_approve" type="object"

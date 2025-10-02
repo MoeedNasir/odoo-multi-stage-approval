@@ -11,6 +11,7 @@
         'security/approval_rules.xml',
         'data/approval_stages.xml',
         'data/approval_demo.xml',
+        'data/mail_templates.xml',
         'views/approval_flow_views.xml',
         'views/approval_stage_views.xml',
         'views/purchase_views.xml',
