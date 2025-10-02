@@ -1,5 +1,8 @@
 from odoo import _, models, fields, api
 from odoo.exceptions import UserError, ValidationError
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class PurchaseOrder(models.Model):
@@ -45,7 +48,7 @@ class PurchaseOrder(models.Model):
                 order.next_approver_id = False
 
     def action_request_approval(self):
-        """Initiate approval process with enhanced messaging"""
+        """Initiate approval process with enhanced messaging and notifications"""
         for order in self:
             if order.approval_status != 'draft':
                 raise UserError(_("Approval can only be requested from draft status."))
@@ -82,11 +85,14 @@ class PurchaseOrder(models.Model):
                 subtype_xmlid='mail.mt_comment'
             )
 
+            # Send email notifications
+            order._send_approval_notifications(first_stage)
+
             # Create activity for approvers
             self._create_approval_activity(order, first_stage)
 
     def action_approve(self):
-        """Approve current stage and move to next with enhanced messaging"""
+        """Approve current stage and move to next with enhanced notifications"""
         for order in self:
             if order.approval_status != 'waiting':
                 raise UserError(_("Only orders waiting approval can be approved."))
@@ -112,18 +118,121 @@ class PurchaseOrder(models.Model):
                     subtype_xmlid='mail.mt_comment'
                 )
 
+                # Send notifications for next stage
+                order._send_approval_notifications(next_stage)
+
                 # Create activity for next stage approvers
                 self._create_approval_activity(order, next_stage)
             else:
                 order.approval_status = 'approved'
                 order.message_post(
-                    body=_("✅ Fully approved by %s") % self.env.user.name,
+                    body=_("Fully approved by %s") % self.env.user.name,
                     subtype_xmlid='mail.mt_comment'
                 )
+
+                # Send approval completion notification
+                order._send_approval_complete_notification()
 
                 # Auto confirm purchase order if configured
                 if self._should_auto_confirm():
                     order.button_confirm()
+
+    def _send_approval_notifications(self, stage):
+        """Send email and/or chat notifications for approval requests"""
+        notification_method = self._get_notification_method()
+
+        if 'email' in notification_method:
+            self._send_email_notification(stage)
+
+        if 'chat' in notification_method:
+            self._send_chat_notification(stage)
+
+    def _send_email_notification(self, stage):
+        """Send email notification to approvers"""
+        try:
+            # Get appropriate email template based on model
+            if self._name == 'purchase.order':
+                template = self.env.ref('multi_stage_approval.email_template_approval_request')
+            else:
+                template = self.env.ref('multi_stage_approval.email_template_sales_approval_request')
+
+            # Send email to all approvers in the stage group
+            approver_group = stage.role_id
+            approvers = self.env['res.users'].search([
+                ('groups_id', 'in', approver_group.ids),
+                ('id', '!=', self.env.user.id)  # Exclude current user
+            ])
+
+            for approver in approvers:
+                if approver.email:
+                    template.with_context(
+                        lang=approver.lang,
+                        email_to=approver.email
+                    ).send_mail(self.id, force_send=True)
+
+        except Exception as e:
+            # Log error but don't break the approval process
+            self.message_post(
+                body=_("Failed to send email notification: %s") % str(e),
+                subtype_xmlid='mail.mt_comment'
+            )
+
+    def _send_chat_notification(self, stage):
+        """Send chat notification to approvers"""
+        try:
+            approver_group = stage.role_id
+            approvers = self.env['res.users'].search([
+                ('groups_id', 'in', approver_group.ids),
+                ('id', '!=', self.env.user.id)
+            ])
+
+            for approver in approvers:
+                # Create a direct notification
+                self.env['mail.message'].create({
+                    'model': self._name,
+                    'res_id': self.id,
+                    'body': _('Approval required for %s. Current stage: %s') % (self.name, stage.name),
+                    'partner_ids': [(6, 0, [approver.partner_id.id])],
+                    'subject': _('Approval Required'),
+                    'message_type': 'notification',
+                })
+
+        except Exception as e:
+            # Log error but don't break the approval process
+            self.message_post(
+                body=_("Failed to send chat notification: %s") % str(e),
+                subtype_xmlid='mail.mt_comment'
+            )
+
+    def _send_approval_complete_notification(self):
+        """Send notification when approval is complete"""
+        try:
+            # Notify the requester
+            template = self.env.ref('multi_stage_approval.email_template_approval_approved')
+            if template and self.create_uid.email:
+                template.with_context(
+                    lang=self.create_uid.lang,
+                    email_to=self.create_uid.email
+                ).send_mail(self.id, force_send=True)
+
+        except Exception as e:
+            self.message_post(
+                body=_("Failed to send approval completion notification: %s") % str(e),
+                subtype_xmlid='mail.mt_comment'
+            )
+
+    def _get_notification_method(self):
+        """Get notification method from configuration"""
+        method = self.env['ir.config_parameter'].sudo().get_param(
+            'multi_stage_approval.notification_method', 'both'
+        )
+
+        if method == 'email':
+            return ['email']
+        elif method == 'chat':
+            return ['chat']
+        else:  # both or default
+            return ['email', 'chat']
 
     def action_reject(self):
         """Reject the purchase order with enhanced messaging"""
@@ -142,7 +251,7 @@ class PurchaseOrder(models.Model):
 
             order.approval_status = 'rejected'
             order.message_post(
-                body=_("❌ Rejected by %s") % self.env.user.name,
+                body=_("Rejected by %s") % self.env.user.name,
                 subtype_xmlid='mail.mt_comment'
             )
 
@@ -199,6 +308,22 @@ class PurchaseOrder(models.Model):
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         return f"{base_url}/web#id={self.id}&model={self._name}&view_type=form"
 
+    def _send_escalation_notification(self):
+        """Send escalation notification for purchase orders"""
+        try:
+            template = self.env.ref('multi_stage_approval.email_template_approval_escalation')
+            if template:
+                template.send_mail(self.id, force_send=True)
+
+            # Post chatter message
+            self.message_post(
+                body=_("🚨 Escalation notification sent - approval pending beyond threshold"),
+                subtype_xmlid='mail.mt_comment'
+            )
+
+        except Exception as e:
+            _logger.error("Failed to send escalation email for purchase order %s: %s", self.id, str(e))
+
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -243,7 +368,7 @@ class SaleOrder(models.Model):
                 order.next_approver_id = False
 
     def action_request_approval(self):
-        """Sales order specific approval request with chatter"""
+        """Sales order specific approval request with notifications"""
         for order in self:
             if order.state != 'draft':
                 raise UserError(_("Approval can only be requested from draft quotation."))
@@ -283,8 +408,84 @@ class SaleOrder(models.Model):
                 subtype_xmlid='mail.mt_comment'
             )
 
+            # Send email notifications
+            order._send_approval_notifications(first_stage)
+
             # Create activity for approvers
             self._create_approval_activity(order, first_stage)
+
+    def _send_approval_notifications(self, stage):
+        """Send email and/or chat notifications for approval requests"""
+        notification_method = self._get_notification_method()
+
+        if 'email' in notification_method:
+            self._send_email_notification(stage)
+
+        if 'chat' in notification_method:
+            self._send_chat_notification(stage)
+
+    def _send_email_notification(self, stage):
+        """Send email notification to approvers"""
+        try:
+            template = self.env.ref('multi_stage_approval.email_template_sales_approval_request')
+
+            # Send email to all approvers in the stage group
+            approver_group = stage.role_id
+            approvers = self.env['res.users'].search([
+                ('groups_id', 'in', approver_group.ids),
+                ('id', '!=', self.env.user.id)
+            ])
+
+            for approver in approvers:
+                if approver.email:
+                    template.with_context(
+                        lang=approver.lang,
+                        email_to=approver.email
+                    ).send_mail(self.id, force_send=True)
+
+        except Exception as e:
+            self.message_post(
+                body=_("Failed to send email notification: %s") % str(e),
+                subtype_xmlid='mail.mt_comment'
+            )
+
+    def _send_chat_notification(self, stage):
+        """Send chat notification to approvers"""
+        try:
+            approver_group = stage.role_id
+            approvers = self.env['res.users'].search([
+                ('groups_id', 'in', approver_group.ids),
+                ('id', '!=', self.env.user.id)
+            ])
+
+            for approver in approvers:
+                self.env['mail.message'].create({
+                    'model': self._name,
+                    'res_id': self.id,
+                    'body': _('Approval required for %s. Current stage: %s') % (self.name, stage.name),
+                    'partner_ids': [(6, 0, [approver.partner_id.id])],
+                    'subject': _('Approval Required'),
+                    'message_type': 'notification',
+                })
+
+        except Exception as e:
+            self.message_post(
+                body=_("Failed to send chat notification: %s") % str(e),
+                subtype_xmlid='mail.mt_comment'
+            )
+
+    def _get_notification_method(self):
+        """Get notification method from configuration"""
+        method = self.env['ir.config_parameter'].sudo().get_param(
+            'multi_stage_approval.notification_method', 'both'
+        )
+
+        if method == 'email':
+            return ['email']
+        elif method == 'chat':
+            return ['chat']
+        else:
+            return ['email', 'chat']
 
     def action_approve(self):
         """Approve current stage and move to next"""
@@ -388,3 +589,19 @@ class SaleOrder(models.Model):
         """Generate approval URL for email templates"""
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         return f"{base_url}/web#id={self.id}&model={self._name}&view_type=form"
+
+    def _send_escalation_notification(self):
+        """Send escalation notification for sales orders"""
+        try:
+            template = self.env.ref('multi_stage_approval.email_template_approval_escalation')
+            if template:
+                template.send_mail(self.id, force_send=True)
+
+            # Post chatter message
+            self.message_post(
+                body=_("🚨 Escalation notification sent - approval pending beyond threshold"),
+                subtype_xmlid='mail.mt_comment'
+            )
+
+        except Exception as e:
+            _logger.error("Failed to send escalation email for sales order %s: %s", self.id, str(e))

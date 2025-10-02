@@ -189,5 +189,183 @@
                 ]]>
             </field>
         </record>
+
+         <!-- Approval Rejected Template -->
+        <record id="email_template_approval_rejected" model="mail.template">
+            <field name="name">Approval Rejected</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="subject">Purchase Order ${object.name} Rejected</field>
+            <field name="email_to">${object.create_uid.email}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
+                            <tr>
+                                <td align="center">
+                                    <table width="600" border="0" cellspacing="0" cellpadding="20" style="background-color: white; margin: 20px; border-radius: 8px;">
+                                        <tr>
+                                            <td style="text-align: center;">
+                                                <div style="color: #dc3545; font-size: 48px; margin-bottom: 20px;">❌</div>
+                                                <h2 style="color: #dc3545; margin-bottom: 20px;">Approval Rejected</h2>
+
+                                                <p>Your purchase order <strong>${object.name}</strong> has been rejected.</p>
+
+                                                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td><strong>Vendor:</strong></td>
+                                                            <td>${object.partner_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Amount:</strong></td>
+                                                            <td>${object.amount_total} ${object.currency_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Rejected By:</strong></td>
+                                                            <td>${object.approval_history_ids[-1].user_id.name if object.approval_history_ids else 'System'}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Stage:</strong></td>
+                                                            <td>${object.approval_history_ids[-1].stage_id.name if object.approval_history_ids else 'Unknown'}</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+
+                                                <div style="text-align: center; margin: 25px 0;">
+                                                    <a href="${object.get_approval_url()}"
+                                                       style="background-color: #875A7B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                                                       Review Order
+                                                    </a>
+                                                </div>
+
+                                                <p style="color: #6c757d; font-size: 12px; margin-top: 20px;">
+                                                    This is an automated message from ${object.company_id.name}.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <!-- Sales Approval Approved Template -->
+        <record id="email_template_sales_approval_approved" model="mail.template">
+            <field name="name">Sales Approval Approved</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="subject">Sales Order ${object.name} Approved</field>
+            <field name="email_to">${object.create_uid.email}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f5f5f5;">
+                            <tr>
+                                <td align="center">
+                                    <table width="600" border="0" cellspacing="0" cellpadding="20" style="background-color: white; margin: 20px; border-radius: 8px;">
+                                        <tr>
+                                            <td style="text-align: center;">
+                                                <div style="color: #28a745; font-size: 48px; margin-bottom: 20px;">✅</div>
+                                                <h2 style="color: #28a745; margin-bottom: 20px;">Sales Approval Complete!</h2>
+
+                                                <p>Your sales order <strong>${object.name}</strong> has been fully approved.</p>
+
+                                                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 15px 0;">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td><strong>Customer:</strong></td>
+                                                            <td>${object.partner_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Amount:</strong></td>
+                                                            <td>${object.amount_total} ${object.currency_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Approved By:</strong></td>
+                                                            <td>${object.approval_history_ids[-1].user_id.name if object.approval_history_ids else 'System'}</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+
+                                                <p style="color: #6c757d; font-size: 12px; margin-top: 20px;">
+                                                    This is an automated message from ${object.company_id.name}.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </field>
+        </record>
+
+        <!-- Escalation Notification Template -->
+        <record id="email_template_approval_escalation" model="mail.template">
+            <field name="name">Approval Escalation</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="subject">URGENT: Approval Escalation for ${object.name}</field>
+            <field name="email_to">${object.company_id.approval_escalation_email or object.company_id.email}</field>
+            <field name="body_html">
+                <![CDATA[
+                    <div style="margin: 0px; padding: 0px; font-family: Arial, sans-serif;">
+                        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #fff3cd;">
+                            <tr>
+                                <td align="center">
+                                    <table width="600" border="0" cellspacing="0" cellpadding="20" style="background-color: white; margin: 20px; border-radius: 8px; border: 2px solid #ffc107;">
+                                        <tr>
+                                            <td>
+                                                <h2 style="color: #856404; margin-bottom: 20px;">🚨 Approval Escalation Required</h2>
+
+                                                <p><strong>Urgent attention required!</strong> The following purchase order has been waiting for approval beyond the escalation period.</p>
+
+                                                <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 15px 0; border-left: 4px solid #ffc107;">
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td><strong>Order:</strong></td>
+                                                            <td>${object.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Vendor:</strong></td>
+                                                            <td>${object.partner_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Amount:</strong></td>
+                                                            <td>${object.amount_total} ${object.currency_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Current Stage:</strong></td>
+                                                            <td>${object.approval_stage_id.name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Waiting Since:</strong></td>
+                                                            <td>${object.approval_history_ids.filtered(lambda h: h.action == 'requested')[-1].date if object.approval_history_ids else 'Unknown'}</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+
+                                                <div style="text-align: center; margin: 25px 0;">
+                                                    <a href="${object.get_approval_url()}"
+                                                       style="background-color: #856404; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                                                       Take Action Now
+                                                    </a>
+                                                </div>
+
+                                                <p style="color: #856404; font-size: 12px; margin-top: 20px;">
+                                                    <strong>This is an escalation notification.</strong> Please address this approval request immediately.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                ]]>
+            </field>
+        </record>
     </data>
 </odoo>
