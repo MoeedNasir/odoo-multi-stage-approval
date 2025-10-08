@@ -7,3 +7,4 @@ from . import test_reports
 from . import test_integration
 from . import test_performance
 from . import test_edge_cases
+from . import test_final_validation
