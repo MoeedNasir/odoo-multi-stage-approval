@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Report Wizard Form View -->
+        <record id="view_approval_report_wizard_form" model="ir.ui.view">
+            <field name="name">approval.report.wizard.form</field>
+            <field name="model">approval.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Generate Approval Report">
+                    <sheet>
+                        <group>
+                            <group string="Date Range">
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                            </group>
+                            <group string="Report Options">
+                                <field name="report_type"/>
+                                <field name="include_draft"/>
+                                <field name="include_rejected"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="generate_report"
+                                string="Generate Report"
+                                type="object"
+                                class="btn-primary"
+                                invisible="report_type == 'detailed'"
+                        />
+                        <button name="generate_report"
+                                string="Generate Report (Coming Soon)"
+                                type="object"
+                                class="btn-secondary"
+                                invisible="report_type != 'detailed'"
+                        />
+                        <button string="Cancel"
+                                class="btn-default"
+                                special="cancel"
+                        />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Report Wizard Action -->
+        <record id="action_approval_report_wizard" model="ir.actions.act_window">
+            <field name="name">Generate Approval Report</field>
+            <field name="res_model">approval.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_report_type': 'summary'}</field>
+        </record>
+
+        <!-- Add Report Menu Item -->
+        <menuitem id="menu_approval_reports" name="Reports"
+                  parent="menu_approval_root" sequence="30"
+        />
+        <menuitem id="menu_approval_summary_report" name="Approval Summary Report"
+                  parent="menu_approval_reports"
+                  action="action_approval_report_wizard" sequence="10"
+        />
+    </data>
+</odoo>

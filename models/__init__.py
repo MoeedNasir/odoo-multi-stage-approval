@@ -4,3 +4,4 @@ from . import approval_stage
 from . import approval_history
 from . import advanced_approval
 from . import notification_system
+from . import approval_reports

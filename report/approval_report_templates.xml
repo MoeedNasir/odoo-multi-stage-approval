@@ -1,2 +1,316 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<odoo></odoo>
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Purchase Order Report with Approval Trail -->
+        <template id="report_purchase_order_approval" inherit_id="purchase.report_purchaseorder_document">
+            <!-- Use a very simple XPath that targets the main container -->
+            <xpath expr="//div[contains(@class, 'container') or contains(@class, 'page')][1]" position="inside">
+                <!-- Approval Trail Section -->
+                <div t-if="doc.requires_approval" class="container mt-4" style="page-break-inside: avoid;">
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 style="color: #875A7B; border-bottom: 2px solid #875A7B; padding-bottom: 8px;">
+                                Approval Trail
+                            </h4>
+
+                            <!-- Current Approval Status -->
+                            <div class="alert" t-attf-class="alert alert-{{ 'success' if doc.approval_status == 'approved' else 'warning' if doc.approval_status == 'waiting' else 'danger' if doc.approval_status == 'rejected' else 'info' }} mb-3">
+                                <strong>Current Status:</strong>
+                                <span t-field="doc.approval_status" t-options="{'widget': 'selection'}"/>
+                                <t t-if="doc.approval_stage_id">
+                                    - <span t-field="doc.approval_stage_id.name"/>
+                                </t>
+                            </div>
+
+                            <!-- Approval History Table -->
+                            <table class="table table-sm table-bordered">
+                                <thead style="background-color: #f8f9fa;">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Stage</th>
+                                        <th>Action</th>
+                                        <th>User</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.approval_history_ids" t-as="history">
+                                        <td>
+                                            <span t-field="history.date"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="history.stage_id.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="history.action" t-options="{'widget': 'selection'}"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="history.user_id.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="history.note"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="not doc.approval_history_ids">
+                                        <td colspan="5" class="text-center text-muted">
+                                            No approval history available
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Next Approver Information -->
+                            <div t-if="doc.approval_status == 'waiting' and doc.next_approver_id"
+                                 class="alert alert-warning mt-3">
+                                <strong>Pending Approval:</strong>
+                                <span t-field="doc.next_approver_id.name"/>
+                                <t t-if="doc.approval_stage_id">
+                                    (<span t-field="doc.approval_stage_id.role_id.name"/>)
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+
+        <!-- Sales Order Report with Approval Trail -->
+        <template id="report_sale_order_approval" inherit_id="sale.report_saleorder_document">
+            <!-- Use a very simple XPath that targets the main container -->
+            <xpath expr="//div[contains(@class, 'container') or contains(@class, 'page')][1]" position="inside">
+                <!-- Approval Trail Section -->
+                <div t-if="doc.requires_approval" class="container mt-4" style="page-break-inside: avoid;">
+                    <div class="row">
+                        <div class="col-12">
+                            <h4 style="color: #875A7B; border-bottom: 2px solid #875A7B; padding-bottom: 8px;">
+                                Approval Trail
+                            </h4>
+
+                            <!-- Current Approval Status -->
+                            <div class="alert" t-attf-class="alert alert-{{ 'success' if doc.approval_status == 'approved' else 'warning' if doc.approval_status == 'waiting' else 'danger' if doc.approval_status == 'rejected' else 'info' }} mb-3">
+                                <strong>Current Status:</strong>
+                                <span t-field="doc.approval_status" t-options="{'widget': 'selection'}"/>
+                                <t t-if="doc.approval_stage_id">
+                                    - <span t-field="doc.approval_stage_id.name"/>
+                                </t>
+                            </div>
+
+                            <!-- Approval History Table -->
+                            <table class="table table-sm table-bordered">
+                                <thead style="background-color: #f8f9fa;">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Stage</th>
+                                        <th>Action</th>
+                                        <th>User</th>
+                                        <th>Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="doc.approval_history_ids" t-as="history">
+                                        <td>
+                                            <span t-field="history.date"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="history.stage_id.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="history.action" t-options="{'widget': 'selection'}"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="history.user_id.name"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="history.note"/>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="not doc.approval_history_ids">
+                                        <td colspan="5" class="text-center text-muted">
+                                            No approval history available
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Next Approver Information -->
+                            <div t-if="doc.approval_status == 'waiting' and doc.next_approver_id"
+                                 class="alert alert-warning mt-3">
+                                <strong>Pending Approval:</strong>
+                                <span t-field="doc.next_approver_id.name"/>
+                                <t t-if="doc.approval_stage_id">
+                                    (<span t-field="doc.approval_stage_id.role_id.name"/>)
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+
+        <!-- Standalone Approval Report -->
+        <template id="report_approval_summary">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <h2>Approval Summary Report</h2>
+                                <p class="text-muted">
+                                    Generated on: <span t-esc="datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')"/>
+                                </p>
+                                <p class="text-muted">
+                                    Date Range: <span t-esc="date_from"/> to <span t-esc="date_to"/>
+                                </p>
+                            </div>
+                            <div class="col-6 text-right">
+                                <h4 t-field="company.name"/>
+                                <p t-field="company.email"/>
+                            </div>
+                        </div>
+
+                        <!-- Summary Statistics -->
+                        <div class="row mb-4">
+                            <div class="col-3">
+                                <div class="card text-white bg-primary">
+                                    <div class="card-body text-center">
+                                        <h4 t-esc="len(draft_orders)"/>
+                                        <p>Draft Orders</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card text-white bg-warning">
+                                    <div class="card-body text-center">
+                                        <h4 t-esc="len(waiting_orders)"/>
+                                        <p>Waiting Approval</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card text-white bg-success">
+                                    <div class="card-body text-center">
+                                        <h4 t-esc="len(approved_orders)"/>
+                                        <p>Approved</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="card text-white bg-danger">
+                                    <div class="card-body text-center">
+                                        <h4 t-esc="len(rejected_orders)"/>
+                                        <p>Rejected</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Purchase Orders Section -->
+                        <div class="row mb-4" t-if="purchase_orders">
+                            <div class="col-12">
+                                <h4 style="color: #875A7B;">Purchase Orders</h4>
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Order Number</th>
+                                            <th>Vendor</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Current Stage</th>
+                                            <th>Requested Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="purchase_orders" t-as="order">
+                                            <td>
+                                                <span t-field="order.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="order.partner_id.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="order.amount_total"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="order.approval_status" t-options="{'widget': 'selection'}"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="order.approval_stage_id.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="order.approval_history_ids[0].date"
+                                                      t-options="{'format': 'MM/dd/yyyy'}"
+                                                      t-if="order.approval_history_ids"/>
+                                                <span t-if="not order.approval_history_ids">-</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Sales Orders Section -->
+                        <div class="row" t-if="sales_orders">
+                            <div class="col-12">
+                                <h4 style="color: #875A7B;">Sales Orders</h4>
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Order Number</th>
+                                            <th>Customer</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                            <th>Current Stage</th>
+                                            <th>Requested Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="sales_orders" t-as="order">
+                                            <td>
+                                                <span t-field="order.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="order.partner_id.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="order.amount_total"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="order.approval_status" t-options="{'widget': 'selection'}"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="order.approval_stage_id.name"/>
+                                            </td>
+                                            <td>
+                                                <span t-field="order.approval_history_ids[0].date"
+                                                      t-options="{'format': 'MM/dd/yyyy'}"
+                                                      t-if="order.approval_history_ids"/>
+                                                <span t-if="not order.approval_history_ids">-</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Footer Notes -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <strong>Report Summary:</strong>
+                                    <ul>
+                                        <li>Total Orders: <span t-esc="len(purchase_orders) + len(sales_orders)"/></li>
+                                        <li>Pending Approval: <span t-esc="len(waiting_orders)"/></li>
+                                        <li>Approval Rate:
+                                            <span t-esc="'%.1f%%' % ((len(approved_orders) / max(1, len(purchase_orders) + len(sales_orders)) * 100))"/>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Approval Summary Report Action -->
+        <record id="action_report_approval_summary" model="ir.actions.report">
+            <field name="name">Approval Summary Report</field>
+            <field name="model">approval.flow</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">multi_stage_approval.report_approval_summary</field>
+            <field name="print_report_name">'approval_summary_%s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_approval_flow"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- Purchase Order Approval Report Action -->
+        <record id="action_report_purchase_order_approval" model="ir.actions.report">
+            <field name="name">Purchase Order with Approval</field>
+            <field name="model">purchase.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">multi_stage_approval.report_purchase_order_approval</field>
+            <field name="print_report_name">'purchase_order_%s' % (object.name)</field>
+        </record>
+
+        <!-- Sales Order Approval Report Action -->
+        <record id="action_report_sale_order_approval" model="ir.actions.report">
+            <field name="name">Sales Order with Approval</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">multi_stage_approval.report_sale_order_approval</field>
+            <field name="print_report_name">'sales_order_%s' % (object.name)</field>
+        </record>
+    </data>
+</odoo>

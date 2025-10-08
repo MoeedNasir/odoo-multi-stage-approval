@@ -18,6 +18,10 @@
         'views/sale_views.xml',
         'views/approval_kanban_views.xml',
         'views/approval_menu_views.xml',
+        'wizards/approval_report_wizard_views.xml',
+        'report/approval_report_templates.xml',
+        'report/approval_report_actions.xml',
+
     ],
     'demo': [
         'data/approval_demo.xml',
