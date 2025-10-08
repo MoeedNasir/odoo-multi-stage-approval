@@ -52,7 +52,7 @@ A comprehensive multi-stage approval system for Odoo 18 that provides flexible w
 -  Performance optimized for large datasets
 -  Full audit trail compliance
 
-## 🛠 Technical Architecture
+##  Technical Architecture
 
 ### Models
 - `approval.flow` - Approval workflow configuration
@@ -97,7 +97,7 @@ The module is production-ready with:
 4. **Efficiency** - Automated routing and notifications
 5. **Scalability** - Handles large volume of approvals
 
-## 🔧 Installation
+##  Installation
 
 ```bash
 # Install the module
