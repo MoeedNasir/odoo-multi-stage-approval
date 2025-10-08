@@ -4,3 +4,6 @@ from . import test_sale_approval
 from . import test_chatter_integration
 from . import test_notifications
 from . import test_reports
+from . import test_integration
+from . import test_performance
+from . import test_edge_cases
